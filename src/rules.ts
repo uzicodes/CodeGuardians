@@ -1,6 +1,6 @@
 import _traverse from "@babel/traverse";
 import * as t from "@babel/types";
-import { Finding } from "./types.js";
+import { Finding } from "./types";
 
 const traverse = (_traverse as any).default ?? _traverse;
 const SECRET_NAME_REGEX = /(?:api[_-]?key|auth[_-]?token|secret|password|private[_-]?key)/i;

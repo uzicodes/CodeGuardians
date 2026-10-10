@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { analyzeSource } from "./analyzer.js";
+import { analyzeSource } from "./analyzer";
 
 const targetFile = process.argv[2];
 

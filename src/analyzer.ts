@@ -1,6 +1,6 @@
 import { parse } from "@babel/parser";
-import { auditAST } from "./rules.js";
-import { Finding } from "./types.js";
+import { auditAST } from "./rules";
+import { Finding } from "./types";
 
 export function analyzeSource(code: string, filename = "input.ts"): Finding[] {
   const ast = parse(code, {
@@ -10,7 +10,7 @@ export function analyzeSource(code: string, filename = "input.ts"): Finding[] {
       "typescript",
       "jsx",
       "decorators-legacy",
-      "classProperties",
+      "classProperties" as any,
       "exportDefaultFrom",
     ],
   });
