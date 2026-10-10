@@ -1,0 +1,19 @@
+{
+  "name": "codeguardians",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "scan": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@babel/parser": "^8.0.7",
+    "@babel/traverse": "^8.0.7",
+    "@babel/types": "^8.0.6"
+  },
+  "devDependencies": {
+    "@types/babel__traverse": "^7.28.0",
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
