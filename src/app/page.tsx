@@ -1,5 +1,6 @@
 import { sql } from "@/lib/db";
-import { ShieldAlert, ShieldCheck, GitPullRequest, Shield, Terminal, ExternalLink, Activity } from "lucide-react";
+import { ShieldAlert, ShieldCheck, GitPullRequest, Terminal, ExternalLink, Activity } from "lucide-react";
+import Image from "next/image";
 
 export const revalidate = 0;
 
@@ -38,8 +39,15 @@ export default async function DashboardPage() {
       <nav className="border-b border-slate-800/80 bg-slate-900/40 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-lg bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center shadow-inner">
-              <Shield className="w-5 h-5 text-indigo-400" />
+            <div className="h-9 w-9 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center shadow-inner overflow-hidden">
+              <Image
+                src="/favicon/android-chrome-192x192.png"
+                alt="CodeGuardians Logo"
+                width={30}
+                height={30}
+                className="w-7 h-7 object-contain rounded"
+                priority
+              />
             </div>
             <div>
               <span className="font-bold text-white tracking-tight">CodeGuardians</span>
@@ -109,7 +117,6 @@ export default async function DashboardPage() {
               <Terminal className="w-4 h-4 text-slate-400" />
               Recent Pull Request Audits
             </div>
-            <span className="text-xs font-mono text-slate-400">Database: Neon PostgreSQL</span>
           </div>
 
           <div className="overflow-x-auto">
