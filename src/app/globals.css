@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #060913;
-  --foreground: #f8fafc;
+  --background: #FCECD8;
+  --foreground: #6E3511;
+  --color-brown: #6E3511;
+  --color-sage: #91AC67;
+  --color-forest: #597928;
+  --color-cream: #FCECD8;
 }
 
 body {
@@ -10,9 +14,4 @@ body {
   background: var(--background);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
-}
-
-.bg-grid-pattern {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
-  background-size: 24px 24px;
 }
