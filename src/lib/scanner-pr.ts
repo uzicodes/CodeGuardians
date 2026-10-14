@@ -110,7 +110,7 @@ async function postPRReport(
   let body = "";
 
   if (totalIssues === 0) {
-    body = `###  CodeGuardians Security Check Passed\n\n` +
+    body = `### ✅ CodeGuardians Security Check Passed\n\n` +
       `No security vulnerabilities detected in commit \`${commitSha.slice(0, 7)}\`.\n\n` +
       `_Scanned with AST structural analysis engine._`;
   } else {

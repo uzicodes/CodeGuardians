@@ -6,7 +6,7 @@ import { processPullRequestScan } from "@/lib/scanner-pr";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET;
+  const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET?.trim();
 
   if (!webhookSecret) {
     console.error("[CodeGuardians] Missing GITHUB_WEBHOOK_SECRET in environment.");
@@ -56,15 +56,18 @@ export async function POST(req: NextRequest) {
 
       console.log(`[Scanning] PR #${prNumber} on ${owner}/${repo} at commit ${commitSha.slice(0, 7)}`);
 
-      // Trigger the automated audit asynchronously
-      (async () => {
-        try {
-          const octokit = getInstallationOctokit(installationId);
-          await processPullRequestScan(octokit, owner, repo, prNumber, commitSha);
-        } catch (err: any) {
-          console.error("[Scan Failure]", err);
-        }
-      })();
+      // Directly await the scan so serverless contexts do not terminate prematurely
+      try {
+        const octokit = getInstallationOctokit(installationId);
+        await processPullRequestScan(octokit, owner, repo, prNumber, commitSha);
+        console.log(`[Scan Complete] PR #${prNumber} on ${owner}/${repo}`);
+      } catch (err: any) {
+        console.error("[Scan Failure]", err);
+        return NextResponse.json(
+          { error: "Scan execution failed", details: err.message },
+          { status: 500 }
+        );
+      }
     }
   }
 

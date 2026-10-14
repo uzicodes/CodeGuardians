@@ -1,8 +1,16 @@
 import { neon } from "@neondatabase/serverless";
 
-if (!process.env.DATABASE_URL) {
-  console.warn("Missing DATABASE_URL in environment.");
+let dbUrl = process.env.DATABASE_URL?.trim() || "";
+
+if (
+  (dbUrl.startsWith('"') && dbUrl.endsWith('"')) ||
+  (dbUrl.startsWith("'") && dbUrl.endsWith("'"))
+) {
+  dbUrl = dbUrl.slice(1, -1).trim();
 }
 
-export const sql = neon(process.env.DATABASE_URL || "");
+if (!dbUrl) {
+  console.warn("[CodeGuardians] Missing DATABASE_URL in environment.");
+}
 
+export const sql = neon(dbUrl);
