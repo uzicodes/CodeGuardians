@@ -425,10 +425,10 @@ Potential extensions for future releases include:
 
 | Resource | Link |
 |---|---|
-| Live dashboard | [Coming soon — add deployment URL](https://example.com) |
-| GitHub App installation | [Coming soon — add public installation URL](https://github.com/apps) |
-| Source repository | [Add public repository URL](https://github.com) |
-| Demo pull request comment | Add a screenshot of a real, redacted CodeGuardians diagnostic report |
+| Live dashboard link| [https://code-guardians-dev.vercel.app](https://code-guardians-dev.vercel.app) |
+| GitHub App installation | [Application](https://github.com/apps/codeguardians-security-bot/installations/new) |
+| Source repository | [Github Repo](https://github.com/uzicodes/CodeGuardians) |
+
 
 
 ## License
