@@ -3,10 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { getInstallationOctokit } from "@/lib/github";
 import { processPullRequestScan } from "@/lib/scanner-pr";
 
-const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET || "";
-const webhooks = new Webhooks({ secret: webhookSecret });
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+  const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET?.trim();
+
+  if (!webhookSecret) {
+    console.error("[CodeGuardians] Missing GITHUB_WEBHOOK_SECRET in environment.");
+    return NextResponse.json(
+      { error: "Server misconfiguration: missing webhook secret." },
+      { status: 500 }
+    );
+  }
+
   const signature = req.headers.get("x-hub-signature-256");
   const event = req.headers.get("x-github-event");
   const id = req.headers.get("x-github-delivery");
@@ -20,7 +29,10 @@ export async function POST(req: NextRequest) {
 
   const rawBody = await req.text();
 
+  // Instantiate webhooks inside the handler at runtime
+  const webhooks = new Webhooks({ secret: webhookSecret });
   const isValid = await webhooks.verify(rawBody, signature);
+
   if (!isValid) {
     console.warn(`[Security] Invalid webhook signature on delivery: ${id}`);
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
@@ -44,15 +56,18 @@ export async function POST(req: NextRequest) {
 
       console.log(`[Scanning] PR #${prNumber} on ${owner}/${repo} at commit ${commitSha.slice(0, 7)}`);
 
-      // Trigger the automated audit asynchronously
-      (async () => {
-        try {
-          const octokit = getInstallationOctokit(installationId);
-          await processPullRequestScan(octokit, owner, repo, prNumber, commitSha);
-        } catch (err: any) {
-          console.error("[Scan Failure]", err);
-        }
-      })();
+      // Directly await the scan so serverless contexts do not terminate prematurely
+      try {
+        const octokit = getInstallationOctokit(installationId);
+        await processPullRequestScan(octokit, owner, repo, prNumber, commitSha);
+        console.log(`[Scan Complete] PR #${prNumber} on ${owner}/${repo}`);
+      } catch (err: any) {
+        console.error("[Scan Failure]", err);
+        return NextResponse.json(
+          { error: "Scan execution failed", details: err.message },
+          { status: 500 }
+        );
+      }
     }
   }
 
