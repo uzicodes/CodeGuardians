@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   FolderGit2,
   ExternalLink,
+  Code2,
+  Globe,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -114,6 +116,12 @@ export default async function DashboardPage() {
             </span>
             <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium px-2.5 py-1 rounded-md bg-[#597928] text-[#FCECD8] border border-[#91AC67] shadow-sm">
               <Zap className="w-3 h-3 text-[#FCECD8]" /> Env Leaks
+            </span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium px-2.5 py-1 rounded-md bg-[#597928] text-[#FCECD8] border border-[#91AC67] shadow-sm">
+              <Code2 className="w-3 h-3 text-[#FCECD8]" /> DOM XSS
+            </span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-mono font-medium px-2.5 py-1 rounded-md bg-[#597928] text-[#FCECD8] border border-[#91AC67] shadow-sm">
+              <Globe className="w-3 h-3 text-[#FCECD8]" /> Insecure Transport
             </span>
           </div>
         </div>

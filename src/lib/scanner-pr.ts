@@ -10,6 +10,21 @@ interface FileScanResult {
   findings: Finding[];
 }
 
+function getSeverityBadge(severity: string): string {
+  switch (severity) {
+    case "critical":
+      return "🔴 **CRITICAL**";
+    case "high":
+      return "🟠 **HIGH**";
+    case "medium":
+      return "🟡 **MEDIUM**";
+    case "low":
+      return "🔵 **LOW**";
+    default:
+      return `⚪ **${severity.toUpperCase()}**`;
+  }
+}
+
 export async function processPullRequestScan(
   octokit: Octokit,
   owner: string,
@@ -90,7 +105,7 @@ export async function processPullRequestScan(
           summary += `| :--- | :--- | :--- | :--- |\n`;
 
           for (const finding of fileResult.findings) {
-            const badge = finding.severity === "critical" ? "🔴 **CRITICAL**" : "🟠 **HIGH**";
+            const badge = getSeverityBadge(finding.severity);
             summary += `| ${badge} | \`${finding.ruleId}\` | Line ${finding.line}:${finding.column} | ${finding.message} |\n`;
           }
           summary += `\n`;
@@ -198,7 +213,7 @@ async function postPRReport(
       body += `| :--- | :--- | :--- | :--- |\n`;
 
       for (const finding of fileResult.findings) {
-        const badge = finding.severity === "critical" ? "🔴 **CRITICAL**" : "🟠 **HIGH**";
+        const badge = getSeverityBadge(finding.severity);
         body += `| ${badge} | \`${finding.ruleId}\` | Line ${finding.line}:${finding.column} | ${finding.message} |\n`;
       }
       body += `\n`;
