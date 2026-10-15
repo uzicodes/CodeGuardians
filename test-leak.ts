@@ -15,3 +15,12 @@ export function logSecrets() {
   console.log("Application environment securely loaded.");
 }
 
+// 1. Insecure transport
+fetch("http://api.external-service.com/v1/telemetry");
+
+// 2. DOM XSS
+const container = document.getElementById("app");
+if (container) {
+  container.innerHTML = "<div>" + location.search + "</div>";
+}
+
