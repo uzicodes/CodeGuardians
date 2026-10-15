@@ -1,4 +1,4 @@
-// Test file for CodeGuardians PR Bot
+// test-leak.ts (Remediated)
 const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY || "";
 
 export function runRemoteCode(untrustedCode: string) {
@@ -15,12 +15,13 @@ export function logSecrets() {
   console.log("Application environment securely loaded.");
 }
 
-// 1. Insecure transport
-fetch("http://api.external-service.com/v1/telemetry");
-
-// 2. DOM XSS
-const container = document.getElementById("app");
-if (container) {
-  container.innerHTML = "<div>" + location.search + "</div>";
+export function sendMetrics() {
+  fetch("https://telemetry.insecure-endpoint.com/v1/metrics");
 }
 
+export function renderProfile(userInput: string) {
+  const container = document.getElementById("profile");
+  if (container) {
+    container.textContent = userInput;
+  }
+}
