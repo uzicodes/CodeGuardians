@@ -18,6 +18,25 @@ export async function processPullRequestScan(
   commitSha: string
 ) {
   const repoFullName = `${owner}/${repo}`;
+
+  // 1. Initial Check Run Creation (Checks API)
+  let checkRunId: number | null = null;
+  try {
+    const { data: checkRun } = await octokit.rest.checks.create({
+      owner,
+      repo,
+      name: "CodeGuardians Security Check",
+      head_sha: commitSha,
+      status: "in_progress",
+      started_at: new Date().toISOString(),
+    });
+    checkRunId = checkRun.id;
+    console.log(`[Checks API] Created in-progress check run #${checkRunId} for ${repoFullName}@${commitSha.slice(0, 7)}`);
+  } catch (err: any) {
+    console.error("[Checks API] Failed to create in-progress check run:", err.message);
+  }
+
+  // 2. Fetch changed files in the Pull Request
   const { data: files } = await octokit.rest.pulls.listFiles({
     owner,
     repo,
@@ -56,10 +75,66 @@ export async function processPullRequestScan(
     }
   }
 
-  // 1. Post PR review comment on GitHub
+  const totalIssues = scanResults.reduce((acc, r) => acc + r.findings.length, 0);
+
+  // 3. Complete the GitHub Check Run
+  if (checkRunId !== null) {
+    try {
+      if (totalIssues > 0) {
+        let summary = `### ⚠️ CodeGuardians Security Audit: ${totalIssues} Issue(s) Detected\n\n`;
+        summary += `Static AST inspection flagged security vulnerabilities in commit \`${commitSha.slice(0, 7)}\`:\n\n`;
+
+        for (const fileResult of scanResults) {
+          summary += `#### 📄 \`${fileResult.filename}\`\n\n`;
+          summary += `| Severity | Rule | Location | Description |\n`;
+          summary += `| :--- | :--- | :--- | :--- |\n`;
+
+          for (const finding of fileResult.findings) {
+            const badge = finding.severity === "critical" ? "🔴 **CRITICAL**" : "🟠 **HIGH**";
+            summary += `| ${badge} | \`${finding.ruleId}\` | Line ${finding.line}:${finding.column} | ${finding.message} |\n`;
+          }
+          summary += `\n`;
+        }
+
+        summary += `> **Action Required:** Fix these issues before merging to protect your codebase.\n\n` +
+          `_Report generated autonomously by [CodeGuardians](https://github.com/uzicodes/CodeGuardians)._`;
+
+        await octokit.rest.checks.update({
+          owner,
+          repo,
+          check_run_id: checkRunId,
+          status: "completed",
+          conclusion: "failure",
+          completed_at: new Date().toISOString(),
+          output: {
+            title: `Security Audit: ${totalIssues} Issue(s) Detected`,
+            summary,
+          },
+        });
+      } else {
+        await octokit.rest.checks.update({
+          owner,
+          repo,
+          check_run_id: checkRunId,
+          status: "completed",
+          conclusion: "success",
+          completed_at: new Date().toISOString(),
+          output: {
+            title: "Security Check Passed",
+            summary: "No hardcoded secrets, unsafe eval() calls, or environment leaks detected by CodeGuardians AST scanner.",
+          },
+        });
+      }
+      console.log(`[Checks API] Completed check run #${checkRunId} (conclusion: ${totalIssues === 0 ? "success" : "failure"})`);
+    } catch (err: any) {
+      console.error("[Checks API] Failed to update check run completion:", err.message);
+    }
+  }
+
+  // 4. Post PR review comment on GitHub
   await postPRReport(octokit, owner, repo, pullNumber, commitSha, scanResults);
 
-  // 2. Persist audit to Neon PostgreSQL
+  // 5. Persist audit to Neon PostgreSQL
   await recordAuditRun(repoFullName, pullNumber, commitSha, scanResults);
 }
 
